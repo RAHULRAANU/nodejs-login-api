@@ -1,0 +1,40 @@
+{
+  "name": "user-login",
+  "version": "1.0.0",
+  "description": "user-login Email & OTP based",
+  "main": "server.js",
+  "scripts": {
+    "Start": "NODE_ENV = production node server ",
+    "dev": "nodemon server"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "colors": "^1.4.0",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.1",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.1.0",
+    "fast-two-sms": "^3.0.0",
+    "flash": "^1.1.0",
+    "helmet": "^7.0.0",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.4",
+    "mongoose-validate": "^0.0.5",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.9.5",
+    "otp-generator": "^4.0.1",
+    "passport": "^0.6.0",
+    "path": "^0.12.7",
+    "twilio": "^4.18.1",
+    "validator": "^13.11.0",
+    "xss-clean": "^0.1.4"
+  }
+}
