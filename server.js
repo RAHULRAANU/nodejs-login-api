@@ -1,5 +1,6 @@
+const path = require("path");
 const express = require("express");
-const morgan = require("morgan");
+const fileUpload = require("express-fileupload");
 const cookieParser = require("cookie-parser");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
@@ -8,55 +9,36 @@ const rateLimit = require("express-rate-limit");
 const hpp = require("hpp");
 const cors = require("cors");
 const dotenv = require("dotenv").config();
+const morgan = require("morgan");
 const dbConnection = require("./config/db");
 const colors = require("colors");
-const flash = require("connect-flash"); 
-const passport = require("passport");
-const session = require("express-session");
-const bodyParser = require("body-parser");
 const errorHandler = require("./middleware/error");
+const flash = require("connect-flash");
+
+// const logger = require("./middleware/logger");
+
 
 // Connect to database
 dbConnection();
 
-// load environment variable
-// dotenv.config();
-
 // route files
-const users = require("./routes/auth");
-const post = require("./routes/post");
+// const bootCamp = require("./routes/bootcamp");
+// const courses = require("./routes/courses");
+const auth = require("./routes/auth");
+const users = require("./routes/user");
+// const reviews = require("./routes/review");
 
 const app = express();
 
-// Passport Config
-require("./config/passport")(passport);
 
 // Body Parser
 app.use(express.json());
 
-// Body parser middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Express body parser
-app.use(express.urlencoded({ extended: true }));
-
-// Express session
-app.use(
-  session({
-    secret: 'secret',
-    resave: true,
-    saveUninitialized: true
-  })
-);
-
-// Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
-
 //cookie parser
 app.use(cookieParser());
 
+// File uploading
+app.use(fileUpload());
 
 // Sanitize data
 app.use(mongoSanitize());       // Prevent NoSQL Injection
@@ -70,14 +52,14 @@ app.use(xss());
 // Enable cors
 app.use(cors());
 
+
 // Connect flash
 app.use(flash());
-
 
 // Rate Limiting
 const limiter = rateLimit({
     windowMs: 10*60*1000, // 10 mins
-    max: 5000
+    max:100
 })
 
 app.use(limiter);
@@ -85,32 +67,35 @@ app.use(limiter);
 // prevent http param pollution
 app.use(hpp());
 
-// Global variables
-app.use(function(req, res, next) {
-  res.locals.success_msg = req.flash('success_msg');
-  res.locals.error_msg = req.flash('error_msg');
-  res.locals.error = req.flash('error');
-  next();
-});
-
 // Development Logging Middleware
 if(process.env.NODE_ENV === "development"){
     app.use(morgan('dev'))
 } 
 
 
+// Set static folder
+app.use(express.static(path.join(__dirname,  "/public")));
+
+
+// app.use(logger);             // instead of logger morgan is used
+
 // Mount Routers
+// app.use("/api/v1/bootCamp", bootCamp);
+// app.use("/api/v1/course", courses);
+app.use("/api/auth", auth);
 app.use("/api/users", users);
-app.use("/api/post", post);
-  
-//Error Handler
+// app.use("/api/v1/reviews", reviews);
+
+// error Handling
 app.use(errorHandler);
 
-PORT = process.env.PORT || 7777;
+
+PORT = process.env.PORT || 5001;
 
 
 // Call Server
-const server = app.listen(PORT, () => {
+const server = app.listen(
+    PORT, () => {
     console.log(`Server Running on ${process.env.NODE_ENV} mode on port ${PORT}`.white.bold)
     });
 
@@ -122,5 +107,4 @@ process.on("unhandledRejection", (err, promise) => {
     //close server and exit process
     server.close(() => process.exit(1));
 });
-
 
